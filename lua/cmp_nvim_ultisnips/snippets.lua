@@ -1,4 +1,4 @@
-local util = require('vim.lsp.util')
+-- local util = require('vim.lsp.util')
 local parser = require('cmp_nvim_ultisnips.parser')
 
 local snippet_info_for_file = {}
@@ -16,7 +16,7 @@ local function parse_snippets(snippets_file_path)
   for _, line in ipairs(content) do
     if not found_snippet_header then
       local stripped_header = line:match('^%s*snippet%s+(.-)%s*$')
-      -- found possible snippet header
+      -- Found possible snippet header
       if stripped_header ~= nil then
         local header_info = parser.parse_snippet_header(stripped_header)
         if not vim.tbl_isempty(header_info) then
@@ -35,7 +35,7 @@ local function parse_snippets(snippets_file_path)
   return snippet_info_for_file[snippets_file_path]
 end
 
--- stores all parsed snippet information for a particular file type
+-- Stores all parsed snippet information for a particular file type
 local snippet_info_for_ft = {}
 
 local M = {}
@@ -74,15 +74,28 @@ function M.format_snippet_content(content)
   return table.concat(snippet_docs, '\n')
 end
 
--- returns the documentation string that will be shown by cmp
+-- Returns the documentation string that will be shown by cmp
 function M.documentation(snippet_info)
   local description = ''
   if snippet_info.description then
-    -- italicize description
+    -- Italicize description
     description = '*' .. snippet_info.description ..  '*'
   end
   local header = description .. '\n\n'
   return header .. M.format_snippet_content(snippet_info.content)
+end
+
+-- Transforms a regex tab_trigger into a string that will be expandable by UltiSnips.
+-- Currently only supports tab_triggers with a * or ? modifier not preceded by an opening bracket.
+function M.handle_regex_trigger(tab_trigger, completion_strategy)
+  if not tab_trigger:match('[^%)]?[%s%w%?%*]+') then
+    return nil
+  end
+  if completion_strategy == 'longest' then
+    return tab_trigger:gsub('[%?%*]', '')
+  elseif completion_strategy == 'shortest' then
+    return tab_trigger:gsub('([^%?%*])[%?%*]', '%1')
+  end
 end
 
 return M

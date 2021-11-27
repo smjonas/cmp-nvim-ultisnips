@@ -46,14 +46,14 @@ function M.handle_non_terminal_symbol(production_name, grammar, input, force_par
       end
 
       if result ~= nil then
-        -- flatten table returned by handler
+        -- Flatten table returned by handler
         if #result.matches == 1 then
           result.matches = result.matches[1]
         end
         table.insert(matches, result.matches)
         cur_input = result.remaining
       end
-      -- the rule was successfully applied to the input string
+      -- The rule was successfully applied to the input string
       if #matches == #symbols then
         if production_name ~= grammar.start_symbol or (not force_parse_to_end or cur_input == '') then
         -- Warning: verify function may change the contents of result.matches!
@@ -79,7 +79,7 @@ end
 local function remove_surrounding_chars(string, tbl, tbl_index)
   local valid = string:sub(1, 1) == string:sub(-1, -1)
   if valid then
-    -- this modifies the original captures table!
+    -- This modifies the original captures table!
     tbl[tbl_index] = string:sub(2, -2)
   end
   return valid
@@ -131,7 +131,7 @@ function M.parse_snippet_header(input)
     }
   }
   local grammar = { start_symbol = 'S', productions = productions }
-  -- reverse the string since we need to parse from right to left
+  -- Reverse the string since we need to parse from right to left
   M.parse(input:reverse(), grammar, true)
   return result
 end
